@@ -17,13 +17,18 @@
         <button id="showHints">Show Hints</button>
         <button id="toggleBoard">Toggle Board Color</button>
         <button id="retroMode">Toggle Retro Mode</button>
-        <button id="soundToggle">Toggle Sound</button> <!-- New Button -->
+        <button id="soundToggle">Toggle Sound</button>
+        <button id="showLegalMoves">Show Legal Moves</button>
+        <button id="showCaptured">Show Captured Pieces</button> <!-- New Button -->
+        <button id="toggleTheme">Toggle Theme</button> <!-- New Button -->
     </div>
     <div id="status">Game in Progress</div>
     <ul id="moveList"></ul>
     <div id="hint"></div>
     <div id="score">White: 0 | Black: 0</div>
-    <audio id="moveSound" src="move.mp3" preload="auto"></audio> <!-- New Audio Element -->
+    <div id="capturedPieces">Captured Pieces: White - [], Black - []</div> <!-- New Div -->
+    <audio id="moveSound" src="move.mp3" preload="auto"></audio>
+    <audio id="captureSound" src="capture.mp3" preload="auto"></audio>
     <script src="script.js"></script>
 </body>
 </html>

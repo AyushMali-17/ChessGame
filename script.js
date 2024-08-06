@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const status = document.getElementById('status');
     const hintArea = document.getElementById('hint');
     const scoreArea = document.getElementById('score');
+    const capturedPiecesArea = document.getElementById('capturedPieces'); // New element
     const squares = 64;
     const pieces = {
         '1': '♖', '2': '♘', '3': '♗', '4': '♕', '5': '♔', '6': '♗', '7': '♘', '8': '♖',
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameOver = false;
     let playerTurn = 'white'; // Player turn ('white' or 'black')
     let scores = { white: 0, black: 0 }; // Score tracking
+    let capturedPieces = { white: [], black: [] }; // Captured pieces tracking
     let soundOn = true; // Sound state
 
     const drawBoard = () => {
@@ -41,25 +43,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updateGameStatus();
         updateScore();
+        updateCapturedPieces(); // Update captured pieces display
     };
 
     const clearHighlights = () => {
-        possibleMoves.forEach(index => {
-            const square = document.querySelector(`.square[data-index='${index}']`);
-            if (square) {
-                square.classList.remove('highlight');
-                square.classList.remove('capture');
-            }
+        document.querySelectorAll('.highlight, .capture').forEach(square => {
+            square.classList.remove('highlight', 'capture');
         });
-        possibleMoves = [];
     };
 
-    const highlightMoves = (piece, position) => {
-        const pos = parseInt(position);
-        const isWhite = piece === '♙' || piece === '♖' || piece === '♘' || piece === '♗' || piece === '♕' || piece === '♔';
+    const highlightMoves = (piece, index) => {
+        const pos = parseInt(index, 10);
         possibleMoves = [];
-
-        const getPosition = (x, y) => x >= 1 && x <= 8 && y >= 1 && y <= 8 ? `${x + (y - 1) * 8}` : null;
+        const getPosition = (x, y) => (x >= 0 && x < 8 && y >= 0 && y < 8) ? (y * 8) + x + 1 : null;
 
         if (piece === '♙') {
             const move = getPosition(pos % 8, Math.floor(pos / 8) + 1);
@@ -104,9 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const playSound = () => {
+    const playSound = (soundType) => {
         if (soundOn) {
-            document.getElementById('moveSound').play();
+            document.getElementById(soundType).play();
         }
     };
 
@@ -116,7 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
             moveHistory,
             gameOver,
             playerTurn,
-            scores
+            scores,
+            capturedPieces // Save captured pieces state
         }));
         alert('Game saved successfully!');
     };
@@ -130,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameOver = savedState.gameOver;
             playerTurn = savedState.playerTurn;
             scores = savedState.scores || scores;
+            capturedPieces = savedState.capturedPieces || capturedPieces; // Load captured pieces state
             for (let i = 0; i < squares; i++) {
                 pieces[i + 1] = boardState[i];
             }
@@ -137,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateMoveList();
             updateGameStatus();
             updateScore();
+            updateCapturedPieces(); // Update captured pieces display
             alert('Game loaded successfully!');
         } else {
             alert('No saved game found.');
@@ -171,6 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreArea.innerText = `White: ${scores.white} | Black: ${scores.black}`;
     };
 
+    const updateCapturedPieces = () => {
+        capturedPiecesArea.innerText = `Captured Pieces: White - ${capturedPieces.white.join(', ')} | Black - ${capturedPieces.black.join(', ')}`;
+    };
+
     const resetBoard = () => {
         drawBoard();
         moveHistory = [];
@@ -191,16 +194,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 toSquare.appendChild(piece);
                 piece.style.transform = 'translateY(0)';
                 if (toSquare.querySelector('.piece') && toSquare.querySelector('.piece').innerText !== piece.innerText) {
-                    toSquare.querySelector('.piece').remove();
-                    // Update score based on captured piece
-                    if (toSquare.querySelector('.piece').innerText.match(/[♖♘♗♕♔]/)) {
+                    playSound('captureSound'); // Play capture sound
+                    const capturedPiece = toSquare.querySelector('.piece').innerText;
+                    if (capturedPiece.match(/[♖♘♗♕♔]/)) {
                         scores.white++;
-                    } else if (toSquare.querySelector('.piece').innerText.match(/[♜♞♝♛♚]/)) {
+                        capturedPieces.black.push(capturedPiece); // Update captured pieces
+                    } else if (capturedPiece.match(/[♜♞♝♛♚]/)) {
                         scores.black++;
+                        capturedPieces.white.push(capturedPiece); // Update captured pieces
                     }
                     updateScore();
+                    updateCapturedPieces(); // Update captured pieces display
+                    toSquare.querySelector('.piece').remove();
                 }
-                playSound(); // Play sound on move
+                playSound('moveSound'); // Play move sound
             }, 200);
         }
     };
@@ -258,6 +265,29 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('soundToggle').classList.toggle('sound-off', !soundOn);
     };
 
+    const showLegalMoves = () => {
+        const legalMoves = document.querySelectorAll('.highlight, .capture');
+        legalMoves.forEach(move => {
+            move.classList.add('legal');
+        });
+        setTimeout(() => {
+            legalMoves.forEach(move => {
+                move.classList.remove('legal');
+            });
+        }, 5000);
+    };
+
+    const showCapturedPieces = () => {
+        const whiteCaptured = capturedPieces.white.join(', ');
+        const blackCaptured = capturedPieces.black.join(', ');
+        alert(`Captured Pieces:\nWhite: ${whiteCaptured}\nBlack: ${blackCaptured}`);
+    };
+
+    const toggleTheme = () => {
+        document.body.classList.toggle('dark-mode');
+        document.body.classList.toggle('retro-mode');
+    };
+
     board.addEventListener('click', (e) => {
         const target = e.target;
 
@@ -269,47 +299,40 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedPiece = target;
             selectedPiece.classList.add('selected');
             highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
-        } else if (target.classList.contains('square') && selectedPiece) {
-            if (target.classList.contains('highlight') || target.classList.contains('capture')) {
+        } else if (target.classList.contains('square')) {
+            if (selectedPiece) {
                 const from = selectedPiece.parentElement.dataset.index;
                 const to = target.dataset.index;
-                updateMoveHistory(selectedPiece.innerText, from, to);
-                movePiece(from, to);
-                clearHighlights();
-                if (target.classList.contains('capture')) {
-                    target.removeChild(target.querySelector('.piece'));
+                if (possibleMoves.includes(parseInt(to, 10))) {
+                    updateMoveHistory(selectedPiece.innerText, from, to);
+                    movePiece(from, to);
+                    selectedPiece.classList.remove('selected');
+                    selectedPiece = null;
+                    clearHighlights();
+                    updateMoveList();
+                    checkGameEnd();
+                    playerTurn = 'black'; // Switch turn to AI
+                    makeAIMove();
+                    updateGameStatus();
                 }
-                selectedPiece.classList.remove('selected');
-                selectedPiece = null;
-                updateMoveList();
-                checkGameEnd();
-                playerTurn = 'black'; // Switch turn to AI
-                updateGameStatus();
-                setTimeout(makeAIMove, 500); // Make AI move after a short delay
             }
         }
     });
 
     document.getElementById('resetBoard').addEventListener('click', resetBoard);
     document.getElementById('undoMove').addEventListener('click', () => {
-        if (moveHistory.length > 0) {
-            const lastMove = moveHistory.pop();
-            console.log(`Undoing move: ${lastMove}`);
-            updateMoveList();
-            drawBoard();
-        }
+        alert('Undo feature not implemented yet.');
     });
     document.getElementById('saveGame').addEventListener('click', saveGame);
     document.getElementById('loadGame').addEventListener('click', loadGame);
-    document.getElementById('aiMove').addEventListener('click', () => {
-        if (!gameOver && playerTurn === 'white') {
-            makeAIMove();
-        }
-    });
+    document.getElementById('aiMove').addEventListener('click', makeAIMove);
     document.getElementById('showHints').addEventListener('click', showHints);
     document.getElementById('toggleBoard').addEventListener('click', toggleBoardColor);
     document.getElementById('retroMode').addEventListener('click', toggleRetroMode);
-    document.getElementById('soundToggle').addEventListener('click', toggleSound); // New Event Listener
+    document.getElementById('soundToggle').addEventListener('click', toggleSound);
+    document.getElementById('showLegalMoves').addEventListener('click', showLegalMoves);
+    document.getElementById('showCaptured').addEventListener('click', showCapturedPieces); // New Event Listener
+    document.getElementById('toggleTheme').addEventListener('click', toggleTheme); // New Event Listener
 
     drawBoard();
 });

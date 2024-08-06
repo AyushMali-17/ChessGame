@@ -121,6 +121,13 @@ li {
     color: #000;
 }
 
+#capturedPieces {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+    color: #000;
+}
+
 .retro-mode #chessboard {
     background-color: #666;
 }
@@ -165,4 +172,28 @@ li {
 
 .sound-on {
     background-color: #444;
+}
+
+#showLegalMoves {
+    background-color: #007bff;
+}
+
+#showLegalMoves:hover {
+    background-color: #0056b3;
+}
+
+#showCaptured {
+    background-color: #28a745;
+}
+
+#showCaptured:hover {
+    background-color: #218838;
+}
+
+#toggleTheme {
+    background-color: #17a2b8;
+}
+
+#toggleTheme:hover {
+    background-color: #138496;
 }
