@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const board = document.getElementById('chessboard');
     const status = document.getElementById('status');
+    const hintArea = document.getElementById('hint');
+    const scoreArea = document.getElementById('score');
     const squares = 64;
     const pieces = {
         '1': '♖', '2': '♘', '3': '♗', '4': '♕', '5': '♔', '6': '♗', '7': '♘', '8': '♖',
@@ -15,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let possibleMoves = [];
     let gameOver = false;
     let playerTurn = 'white'; // Player turn ('white' or 'black')
+    let scores = { white: 0, black: 0 }; // Score tracking
 
     const drawBoard = () => {
         board.innerHTML = '';
@@ -36,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             board.appendChild(square);
         }
         updateGameStatus();
+        updateScore();
     };
 
     const clearHighlights = () => {
@@ -85,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             [captureLeft, captureRight].forEach(capture => {
                 if (capture) {
                     const target = document.querySelector(`.square[data-index='${capture}'] .piece`);
-                    if (target && target.innerText.match(/[♖♘♗♕♔♙]/)) {
+                    if (target && target.innerText.match(/[♖♘♗♕♔]/)) {
                         possibleMoves.push(capture);
                     }
                 }
@@ -95,19 +99,20 @@ document.addEventListener('DOMContentLoaded', () => {
         possibleMoves.forEach(index => {
             const square = document.querySelector(`.square[data-index='${index}']`);
             if (square) {
-                square.classList.add(square.querySelector('.piece') ? 'capture' : 'highlight');
+                const isCapture = document.querySelector(`.square[data-index='${index}'] .piece`);
+                square.classList.add(isCapture ? 'capture' : 'highlight');
             }
         });
     };
 
     const saveGame = () => {
-        const gameState = {
+        localStorage.setItem('chessGameState', JSON.stringify({
             boardState,
             moveHistory,
             gameOver,
-            playerTurn
-        };
-        localStorage.setItem('chessGameState', JSON.stringify(gameState));
+            playerTurn,
+            scores // Save scores
+        }));
         alert('Game saved successfully!');
     };
 
@@ -119,12 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
             moveHistory = savedState.moveHistory;
             gameOver = savedState.gameOver;
             playerTurn = savedState.playerTurn;
+            scores = savedState.scores || scores; // Load scores if available
             for (let i = 0; i < squares; i++) {
                 pieces[i + 1] = boardState[i];
             }
             drawBoard();
             updateMoveList();
             updateGameStatus();
+            updateScore();
             alert('Game loaded successfully!');
         } else {
             alert('No saved game found.');
@@ -155,6 +162,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const updateScore = () => {
+        scoreArea.innerText = `White: ${scores.white} | Black: ${scores.black}`;
+    };
+
     const resetBoard = () => {
         drawBoard();
         moveHistory = [];
@@ -176,6 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 piece.style.transform = 'translateY(0)';
                 if (toSquare.querySelector('.piece') && toSquare.querySelector('.piece').innerText !== piece.innerText) {
                     toSquare.querySelector('.piece').remove();
+                    // Update score based on captured piece
+                    if (toSquare.querySelector('.piece').innerText.match(/[♖♘♗♕♔]/)) {
+                        scores.white++;
+                    } else if (toSquare.querySelector('.piece').innerText.match(/[♜♞♝♛♚]/)) {
+                        scores.black++;
+                    }
+                    updateScore();
                 }
             }, 200);
         }
@@ -210,6 +228,18 @@ document.addEventListener('DOMContentLoaded', () => {
             playerTurn = 'white'; // Switch turn back to player
             updateGameStatus();
         }
+    };
+
+    const showHints = () => {
+        hintArea.innerText = 'Hints: Consider moving pieces that can control the center of the board or put the opponent in check!';
+        hintArea.style.color = '#007bff';
+        setTimeout(() => {
+            hintArea.innerText = '';
+        }, 5000);
+    };
+
+    const toggleBoardColor = () => {
+        document.body.classList.toggle('dark-mode');
     };
 
     board.addEventListener('click', (e) => {
@@ -260,6 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
             makeAIMove();
         }
     });
+    document.getElementById('showHints').addEventListener('click', showHints);
+    document.getElementById('toggleBoard').addEventListener('click', toggleBoardColor); // New Event Listener
 
     drawBoard();
 });
