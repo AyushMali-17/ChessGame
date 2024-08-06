@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameOver = false;
     let playerTurn = 'white'; // Player turn ('white' or 'black')
     let scores = { white: 0, black: 0 }; // Score tracking
+    let soundOn = true; // Sound state
 
     const drawBoard = () => {
         board.innerHTML = '';
@@ -71,14 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
             [captureLeft, captureRight].forEach(capture => {
                 if (capture) {
                     const target = document.querySelector(`.square[data-index='${capture}'] .piece`);
-                    if (target && target.innerText.match(/[♜♞♝♛♚♟]/)) {
+                    if (target && !target.innerText.match(/♙/)) {
                         possibleMoves.push(capture);
                     }
                 }
             });
-        }
-
-        if (piece === '♟') {
+        } else if (piece === '♟') {
             const move = getPosition(pos % 8, Math.floor(pos / 8) - 1);
             if (move && !document.querySelector(`.square[data-index='${move}'] .piece`)) {
                 possibleMoves.push(move);
@@ -105,13 +104,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const playSound = () => {
+        if (soundOn) {
+            document.getElementById('moveSound').play();
+        }
+    };
+
     const saveGame = () => {
         localStorage.setItem('chessGameState', JSON.stringify({
             boardState,
             moveHistory,
             gameOver,
             playerTurn,
-            scores // Save scores
+            scores
         }));
         alert('Game saved successfully!');
     };
@@ -124,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             moveHistory = savedState.moveHistory;
             gameOver = savedState.gameOver;
             playerTurn = savedState.playerTurn;
-            scores = savedState.scores || scores; // Load scores if available
+            scores = savedState.scores || scores;
             for (let i = 0; i < squares; i++) {
                 pieces[i + 1] = boardState[i];
             }
@@ -195,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     updateScore();
                 }
+                playSound(); // Play sound on move
             }, 200);
         }
     };
@@ -231,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const showHints = () => {
-        hintArea.innerText = 'Hints: Consider moving pieces that can control the center of the board or put the opponent in check!';
+        hintArea.innerText = 'Hints: Consider developing your pieces and controlling key squares!';
         hintArea.style.color = '#007bff';
         setTimeout(() => {
             hintArea.innerText = '';
@@ -240,6 +246,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const toggleBoardColor = () => {
         document.body.classList.toggle('dark-mode');
+    };
+
+    const toggleRetroMode = () => {
+        document.body.classList.toggle('retro-mode');
+    };
+
+    const toggleSound = () => {
+        soundOn = !soundOn;
+        document.getElementById('soundToggle').classList.toggle('sound-on', soundOn);
+        document.getElementById('soundToggle').classList.toggle('sound-off', !soundOn);
     };
 
     board.addEventListener('click', (e) => {
@@ -291,7 +307,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     document.getElementById('showHints').addEventListener('click', showHints);
-    document.getElementById('toggleBoard').addEventListener('click', toggleBoardColor); // New Event Listener
+    document.getElementById('toggleBoard').addEventListener('click', toggleBoardColor);
+    document.getElementById('retroMode').addEventListener('click', toggleRetroMode);
+    document.getElementById('soundToggle').addEventListener('click', toggleSound); // New Event Listener
 
     drawBoard();
 });

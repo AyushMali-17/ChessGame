@@ -4,18 +4,20 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #ececec;
-    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    font-family: 'Courier New', Courier, monospace;
+    transition: background-color 0.3s;
 }
 
 #chessboard {
     display: grid;
     grid-template-columns: repeat(8, 60px);
     grid-template-rows: repeat(8, 60px);
-    border: 3px solid #333;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border: 4px solid #000;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     position: relative;
     margin-bottom: 20px;
+    background-color: #eee;
     transition: background-color 0.3s;
 }
 
@@ -32,15 +34,15 @@ body {
 }
 
 .square:nth-child(even) {
-    background-color: #b58863;
+    background-color: #d1a67c;
 }
 
 .square:nth-child(odd) {
-    background-color: #f0d9b5;
+    background-color: #f7e4d5;
 }
 
 .square.highlight {
-    background-color: #a9d18e;
+    background-color: #8fbc8f;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 }
 
@@ -69,15 +71,15 @@ button {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    border: none;
+    border: 2px solid #333;
     border-radius: 5px;
-    background-color: #007bff;
+    background-color: #4a4a4a;
     color: #fff;
     transition: background-color 0.3s, transform 0.2s;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #333;
 }
 
 button:active {
@@ -88,7 +90,7 @@ button:active {
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 10px;
-    color: #333;
+    color: #000;
 }
 
 ul {
@@ -101,7 +103,7 @@ ul {
 li {
     margin: 5px 0;
     font-size: 14px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #333;
     padding-bottom: 5px;
 }
 
@@ -109,18 +111,44 @@ li {
     font-size: 16px;
     font-weight: bold;
     margin-top: 10px;
-    color: #555;
+    color: #000;
 }
 
 #score {
     font-size: 18px;
     font-weight: bold;
     margin-top: 20px;
-    color: #333;
+    color: #000;
+}
+
+.retro-mode #chessboard {
+    background-color: #666;
+}
+
+.retro-mode .square:nth-child(even) {
+    background-color: #777;
+}
+
+.retro-mode .square:nth-child(odd) {
+    background-color: #555;
+}
+
+.retro-mode button {
+    background-color: #000;
+    color: #fff;
+}
+
+.retro-mode button:hover {
+    background-color: #333;
+}
+
+.dark-mode {
+    background-color: #333;
+    color: #fff;
 }
 
 .dark-mode #chessboard {
-    background-color: #333;
+    background-color: #444;
 }
 
 .dark-mode .square:nth-child(even) {
@@ -128,5 +156,13 @@ li {
 }
 
 .dark-mode .square:nth-child(odd) {
+    background-color: #333;
+}
+
+.sound-off {
+    background-color: #888;
+}
+
+.sound-on {
     background-color: #444;
 }
