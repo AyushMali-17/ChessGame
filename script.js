@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const board = document.getElementById('chessboard');
-    const status = document.createElement('div');
-    status.id = 'status';
-    document.body.appendChild(status);
-
+    const status = document.getElementById('status');
     const squares = 64;
     const pieces = {
         '1': '♖', '2': '♘', '3': '♗', '4': '♕', '5': '♔', '6': '♗', '7': '♘', '8': '♖',
@@ -54,27 +51,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const highlightMoves = (piece, position) => {
         const pos = parseInt(position);
         const isWhite = piece === '♙';
+        possibleMoves = [];
 
-        if (piece === '♙' || piece === '♟') {
-            const move = isWhite ? pos + 8 : pos - 8;
-            const captureLeft = isWhite ? pos + 7 : pos - 9;
-            const captureRight = isWhite ? pos + 9 : pos - 7;
+        const getPosition = (x, y) => x >= 1 && x <= 8 && y >= 1 && y <= 8 ? `${x + (y - 1) * 8}` : null;
 
-            if (move >= 1 && move <= 64 && !document.querySelector(`.square[data-index='${move}'] .piece`)) {
+        if (piece === '♙') {
+            const move = getPosition(pos % 8, Math.floor(pos / 8) + 1);
+            if (move && !document.querySelector(`.square[data-index='${move}'] .piece`)) {
                 possibleMoves.push(move);
             }
-            if (captureLeft >= 1 && captureLeft <= 64) {
-                const target = document.querySelector(`.square[data-index='${captureLeft}'] .piece`);
-                if (target && (isWhite ? target.innerText.match(/[♜♞♝♛♚♟]/) : target.innerText.match(/[♖♘♗♕♔♙]/))) {
-                    possibleMoves.push(captureLeft);
+            const captureLeft = getPosition((pos % 8) - 1, Math.floor(pos / 8) + 1);
+            const captureRight = getPosition((pos % 8) + 1, Math.floor(pos / 8) + 1);
+
+            [captureLeft, captureRight].forEach(capture => {
+                if (capture) {
+                    const target = document.querySelector(`.square[data-index='${capture}'] .piece`);
+                    if (target && target.innerText.match(/[♜♞♝♛♚♟]/)) {
+                        possibleMoves.push(capture);
+                    }
                 }
+            });
+        }
+
+        if (piece === '♟') {
+            const move = getPosition(pos % 8, Math.floor(pos / 8) - 1);
+            if (move && !document.querySelector(`.square[data-index='${move}'] .piece`)) {
+                possibleMoves.push(move);
             }
-            if (captureRight >= 1 && captureRight <= 64) {
-                const target = document.querySelector(`.square[data-index='${captureRight}'] .piece`);
-                if (target && (isWhite ? target.innerText.match(/[♜♞♝♛♚♟]/) : target.innerText.match(/[♖♘♗♕♔♙]/))) {
-                    possibleMoves.push(captureRight);
+            const captureLeft = getPosition((pos % 8) - 1, Math.floor(pos / 8) - 1);
+            const captureRight = getPosition((pos % 8) + 1, Math.floor(pos / 8) - 1);
+
+            [captureLeft, captureRight].forEach(capture => {
+                if (capture) {
+                    const target = document.querySelector(`.square[data-index='${capture}'] .piece`);
+                    if (target && target.innerText.match(/[♖♘♗♕♔♙]/)) {
+                        possibleMoves.push(capture);
+                    }
                 }
-            }
+            });
         }
 
         possibleMoves.forEach(index => {
@@ -86,22 +100,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const saveGame = () => {
-        localStorage.setItem('chessBoardState', JSON.stringify(boardState));
-        localStorage.setItem('moveHistory', JSON.stringify(moveHistory));
+        const gameState = {
+            boardState,
+            moveHistory,
+            gameOver
+        };
+        localStorage.setItem('chessGameState', JSON.stringify(gameState));
         alert('Game saved successfully!');
     };
 
     const loadGame = () => {
-        const savedState = JSON.parse(localStorage.getItem('chessBoardState'));
-        const savedMoves = JSON.parse(localStorage.getItem('moveHistory'));
+        const savedState = JSON.parse(localStorage.getItem('chessGameState'));
 
         if (savedState) {
+            boardState = savedState.boardState;
+            moveHistory = savedState.moveHistory;
+            gameOver = savedState.gameOver;
             for (let i = 0; i < squares; i++) {
-                pieces[i + 1] = savedState[i];
+                pieces[i + 1] = boardState[i];
             }
-            moveHistory = savedMoves || [];
             drawBoard();
             updateMoveList();
+            updateGameStatus();
             alert('Game loaded successfully!');
         } else {
             alert('No saved game found.');
@@ -113,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateMoveList = () => {
-        const moveList = document.getElementById('moveList');
+                const moveList = document.getElementById('moveList');
         moveList.innerHTML = '';
         moveHistory.forEach(move => {
             const listItem = document.createElement('li');
@@ -125,8 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateGameStatus = () => {
         if (gameOver) {
             status.innerText = 'Game Over!';
+            status.style.color = 'red';
         } else {
             status.innerText = 'Game in Progress';
+            status.style.color = 'green';
         }
     };
 
@@ -153,8 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const checkGameEnd = () => {
-        // Simple check for game end (for demonstration purposes)
-        if (boardState.filter(p => p === '♚').length === 0) {
+        // Basic check for game end (could be expanded with more conditions)
+        if (!document.querySelector('.square .piece[data-piece="♚"]')) {
             gameOver = true;
             updateGameStatus();
         }
@@ -203,3 +225,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     drawBoard();
 });
+

@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Game</title>
+    <title>Advanced Chess Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="chessboard"></div>
+    <div id="controls">
+        <button id="resetBoard">Reset Board</button>
+        <button id="undoMove">Undo Move</button>
+        <button id="saveGame">Save Game</button>
+        <button id="loadGame">Load Game</button>
+    </div>
+    <div id="status">Game in Progress</div>
+    <ul id="moveList"></ul>
     <script src="script.js"></script>
 </body>
 </html>

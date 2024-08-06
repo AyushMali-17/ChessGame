@@ -1,19 +1,21 @@
 body {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
-    flex-direction: column;
+    background-color: #ececec;
+    font-family: Arial, sans-serif;
 }
 
 #chessboard {
     display: grid;
     grid-template-columns: repeat(8, 60px);
     grid-template-rows: repeat(8, 60px);
-    border: 2px solid #000;
+    border: 2px solid #333;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     position: relative;
+    margin-bottom: 20px;
 }
 
 .square {
@@ -23,14 +25,25 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
+    font-size: 32px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
 }
 
 .square:nth-child(even) {
-    background-color: #769656;
+    background-color: #b58863;
 }
 
 .square:nth-child(odd) {
-    background-color: #eeeed2;
+    background-color: #f0d9b5;
+}
+
+.square.highlight {
+    background-color: #a9d18e;
+}
+
+.square.capture {
+    background-color: #f4cccc;
 }
 
 .piece {
@@ -40,37 +53,42 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 36px;
-    cursor: pointer;
     transition: transform 0.2s ease;
 }
 
 .selected {
-    outline: 2px solid red;
-}
-
-.highlight {
-    background-color: yellow;
-}
-
-.capture {
-    background-color: red;
+    outline: 2px solid #ff0000;
+    background-color: rgba(255, 0, 0, 0.2);
 }
 
 button {
-    margin-top: 10px;
+    margin: 5px;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#status {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 ul {
-    margin-top: 20px;
     list-style-type: none;
     padding: 0;
 }
 
-#status {
-    margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
+li {
+    margin: 5px 0;
+    font-size: 14px;
 }
