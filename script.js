@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreArea = document.getElementById('scoreArea');
     const capturedPiecesArea = document.getElementById('capturedPiecesArea');
     const moveList = document.getElementById('moveList');
-    const hintArea = document.getElementById('hintArea');
-
+    
     const pieces = {};
     let boardState = Array(64).fill(null);
     let moveHistory = [];
@@ -16,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let scores = { white: 0, black: 0 };
     let capturedPieces = { white: [], black: [] };
     let soundOn = true;
-
+    
     const drawBoard = () => {
         board.innerHTML = '';
         for (let i = 1; i <= 64; i++) {
@@ -72,74 +71,44 @@ document.addEventListener('DOMContentLoaded', () => {
             [captureLeft, captureRight].forEach(capture => {
                 if (capture) {
                     const target = document.querySelector(`.square[data-index='${capture}'] .piece`);
-                    if (target && target.innerText.match(/[♖♘♗♕♔]/)) {
+                    if (target && target.innerText.match(/♙/)) {
                         possibleMoves.push(capture);
                     }
                 }
             });
         }
 
-        possibleMoves.forEach(index => {
-            const square = document.querySelector(`.square[data-index='${index}']`);
-            if (square) {
-                const isCapture = document.querySelector(`.square[data-index='${index}'] .piece`);
-                square.classList.add(isCapture ? 'capture' : 'highlight');
-            }
+        possibleMoves.forEach(move => {
+            document.querySelector(`.square[data-index='${move}']`).classList.add('highlight');
         });
     };
 
-    const playSound = (soundType) => {
-        if (soundOn) {
-            document.getElementById(soundType).play();
+    const handleSquareClick = (index) => {
+        const piece = pieces[index];
+        if (selectedPiece) {
+            movePiece(selectedPiece, index);
+            clearHighlights();
+            selectedPiece = null;
+        } else if (piece) {
+            selectedPiece = index;
+            highlightMoves(piece, index);
         }
     };
 
-    const saveGame = () => {
-        localStorage.setItem('chessGameState', JSON.stringify({
-            boardState,
-            moveHistory,
-            gameOver,
-            playerTurn,
-            scores,
-            capturedPieces
-        }));
-        alert('Game saved successfully!');
-    };
-
-    const loadGame = () => {
-        const savedState = JSON.parse(localStorage.getItem('chessGameState'));
-
-        if (savedState) {
-            boardState = savedState.boardState;
-            moveHistory = savedState.moveHistory;
-            gameOver = savedState.gameOver;
-            playerTurn = savedState.playerTurn;
-            scores = savedState.scores || scores;
-            capturedPieces = savedState.capturedPieces || capturedPieces;
-            for (let i = 0; i < 64; i++) {
-                pieces[i + 1] = boardState[i];
-            }
-            drawBoard();
-            updateMoveList();
-            updateGameStatus();
-            updateScore();
-            updateCapturedPieces();
-            alert('Game loaded successfully!');
-        } else {
-            alert('No saved game found.');
-        }
-    };
-
-    const saveToCloud = () => {
-        alert('Game saved to cloud successfully!');
-    };
-
-    const loadFromCloud = () => {
-        alert('Game loaded from cloud successfully!');
+    const movePiece = (from, to) => {
+        const piece = pieces[from];
+        pieces[to] = piece;
+        pieces[from] = null;
+        boardState[to - 1] = piece;
+        boardState[from - 1] = null;
+        drawBoard();
+        playSound('moveSound');
+        updateMoveHistory(piece, from, to);
     };
 
     const updateMoveHistory = (piece, from, to) => {
-        moveHistory.push(`${piece} moved from ${from} to ${to}`);
+        const move = `${piece} from ${from} to ${to}`;
+        moveHistory.push(move);
         updateMoveList();
     };
 
@@ -239,6 +208,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMoveHistory(piece, from, to);
     };
 
+    const updateMoveHistory = (piece, from, to) => {
+        const move = `${piece} from ${from} to ${to}`;
+        moveHistory.push(move);
+        updateMoveList();
+    };
+
     document.getElementById('resetBoard').addEventListener('click', () => {
         pieces = {};  // Reset pieces
         boardState = Array(64).fill(null);
@@ -268,6 +243,27 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('loadFromCloud').addEventListener('click', loadFromCloud);
     document.getElementById('performanceStats').addEventListener('click', performanceStats);
     document.getElementById('enableCheat').addEventListener('click', enableCheatMode);
+    document.getElementById('moveToStart').addEventListener('click', () => {
+        alert('Move to start feature not implemented yet.');
+    });
+    document.getElementById('moveToEnd').addEventListener('click', () => {
+        alert('Move to end feature not implemented yet.');
+    });
+    document.getElementById('showLeaderboard').addEventListener('click', () => {
+        alert('Leaderboard feature under development.');
+    });
+    document.getElementById('recordGame').addEventListener('click', () => {
+        alert('Game recording feature under development.');
+    });
+    document.getElementById('loadFromSaveState').addEventListener('click', () => {
+        alert('Load from save state feature under development.');
+    });
+    document.getElementById('highlightPossibleMoves').addEventListener('click', () => {
+        alert('Highlight possible moves feature under development.');
+    });
+    document.getElementById('themeSwitcher').addEventListener('click', () => {
+        alert('Theme switcher feature under development.');
+    });
 
     drawBoard();
 });

@@ -73,6 +73,7 @@ button {
 
 .retro-mode .square {
     background-color: #6e6e6e;
+    border: 1px solid #333;
 }
 
 .dark-mode {
@@ -82,4 +83,59 @@ button {
 
 .retro-mode {
     background-color: #f0e6d6;
+}
+
+#controls button {
+    background-color: #ffeb3b;
+    color: #000;
+    border: 1px solid #ccc;
+}
+
+#controls button:hover {
+    background-color: #ffc107;
+}
+
+.highlight {
+    background-color: #9fc5e8 !important;
+}
+
+.capture {
+    background-color: #f4cccc !important;
+}
+
+.dark-mode #board {
+    border-color: #ccc;
+}
+
+.dark-mode .square:nth-child(odd) {
+    background-color: #333;
+}
+
+.dark-mode .square:nth-child(even) {
+    background-color: #222;
+}
+
+.dark-mode .piece {
+    color: #fff;
+}
+
+.retro-mode .piece {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#showLeaderboard, #recordGame, #loadFromSaveState, #highlightPossibleMoves, #themeSwitcher {
+    background-color: #e0f7fa;
+    border: 1px solid #00acc1;
+}
+
+#showLeaderboard:hover, #recordGame:hover, #loadFromSaveState:hover, #highlightPossibleMoves:hover, #themeSwitcher:hover {
+    background-color: #b2ebf2;
+}
+
+#scoreArea {
+    font-size: 1.2em;
+}
+
+#capturedPiecesArea {
+    font-size: 1em;
 }
