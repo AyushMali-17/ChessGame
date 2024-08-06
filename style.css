@@ -55,6 +55,7 @@ main {
     align-items: center;
     font-size: 24px;
     border: 1px solid #0f0;
+    cursor: pointer;
 }
 
 .square:nth-child(odd) {
@@ -128,6 +129,14 @@ footer {
 
 .capture {
     background-color: #f005 !important;
+}
+
+.check {
+    background-color: #f00 !important;
+}
+
+.selected {
+    background-color: #00f5 !important;
 }
 
 .sound-on {
