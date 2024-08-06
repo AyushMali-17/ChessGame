@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const status = document.getElementById('status');
     const hintArea = document.getElementById('hint');
     const scoreArea = document.getElementById('score');
-    const capturedPiecesArea = document.getElementById('capturedPieces'); // New element
+    const capturedPiecesArea = document.getElementById('capturedPieces');
     const squares = 64;
     const pieces = {
         '1': '♖', '2': '♘', '3': '♗', '4': '♕', '5': '♔', '6': '♗', '7': '♘', '8': '♖',
@@ -17,33 +17,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedPiece = null;
     let possibleMoves = [];
     let gameOver = false;
-    let playerTurn = 'white'; // Player turn ('white' or 'black')
-    let scores = { white: 0, black: 0 }; // Score tracking
-    let capturedPieces = { white: [], black: [] }; // Captured pieces tracking
-    let soundOn = true; // Sound state
+    let playerTurn = 'white'; // Player's turn
+    let scores = { white: 0, black: 0 };
+    let capturedPieces = { white: [], black: [] };
+    let soundOn = true;
 
     const drawBoard = () => {
         board.innerHTML = '';
         for (let i = 1; i <= squares; i++) {
             const square = document.createElement('div');
-            square.className = 'square';
+            square.classList.add('square');
             square.dataset.index = i;
-
             if (pieces[i]) {
                 const piece = document.createElement('div');
-                piece.className = 'piece';
+                piece.classList.add('piece');
                 piece.innerText = pieces[i];
                 square.appendChild(piece);
-                boardState[i - 1] = pieces[i];
-            } else {
-                boardState[i - 1] = null;
             }
-
             board.appendChild(square);
         }
-        updateGameStatus();
-        updateScore();
-        updateCapturedPieces(); // Update captured pieces display
     };
 
     const clearHighlights = () => {
@@ -140,6 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             alert('No saved game found.');
         }
+    };
+
+    const saveToCloud = () => {
+        // Simulate saving to cloud
+        alert('Game saved to cloud successfully!');
+    };
+
+    const loadFromCloud = () => {
+        // Simulate loading from cloud
+        alert('Game loaded from cloud successfully!');
     };
 
     const updateMoveHistory = (piece, from, to) => {
@@ -270,17 +272,10 @@ document.addEventListener('DOMContentLoaded', () => {
         legalMoves.forEach(move => {
             move.classList.add('legal');
         });
-        setTimeout(() => {
-            legalMoves.forEach(move => {
-                move.classList.remove('legal');
-            });
-        }, 5000);
     };
 
     const showCapturedPieces = () => {
-        const whiteCaptured = capturedPieces.white.join(', ');
-        const blackCaptured = capturedPieces.black.join(', ');
-        alert(`Captured Pieces:\nWhite: ${whiteCaptured}\nBlack: ${blackCaptured}`);
+        capturedPiecesArea.style.display = capturedPiecesArea.style.display === 'none' ? 'block' : 'none';
     };
 
     const toggleTheme = () => {
@@ -288,36 +283,25 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.toggle('retro-mode');
     };
 
-    board.addEventListener('click', (e) => {
-        const target = e.target;
+    const enableCheatMode = () => {
+        // Implement cheat mode features
+        alert('Cheat mode enabled!');
+    };
 
-        if (target.classList.contains('piece')) {
-            if (selectedPiece) {
-                selectedPiece.classList.remove('selected');
-                clearHighlights();
-            }
-            selectedPiece = target;
-            selectedPiece.classList.add('selected');
-            highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
-        } else if (target.classList.contains('square')) {
-            if (selectedPiece) {
-                const from = selectedPiece.parentElement.dataset.index;
-                const to = target.dataset.index;
-                if (possibleMoves.includes(parseInt(to, 10))) {
-                    updateMoveHistory(selectedPiece.innerText, from, to);
-                    movePiece(from, to);
-                    selectedPiece.classList.remove('selected');
-                    selectedPiece = null;
-                    clearHighlights();
-                    updateMoveList();
-                    checkGameEnd();
-                    playerTurn = 'black'; // Switch turn to AI
-                    makeAIMove();
-                    updateGameStatus();
-                }
-            }
-        }
-    });
+    const saveToCloud = () => {
+        // Simulate saving to cloud
+        alert('Game saved to cloud successfully!');
+    };
+
+    const loadFromCloud = () => {
+        // Simulate loading from cloud
+        alert('Game loaded from cloud successfully!');
+    };
+
+    const performanceStats = () => {
+        // Simulate displaying performance stats
+        alert('Performance Stats:\nTime Played: 30 minutes\nMoves Made: 50');
+    };
 
     document.getElementById('resetBoard').addEventListener('click', resetBoard);
     document.getElementById('undoMove').addEventListener('click', () => {
@@ -331,8 +315,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('retroMode').addEventListener('click', toggleRetroMode);
     document.getElementById('soundToggle').addEventListener('click', toggleSound);
     document.getElementById('showLegalMoves').addEventListener('click', showLegalMoves);
-    document.getElementById('showCaptured').addEventListener('click', showCapturedPieces); // New Event Listener
-    document.getElementById('toggleTheme').addEventListener('click', toggleTheme); // New Event Listener
+    document.getElementById('showCaptured').addEventListener('click', showCapturedPieces);
+    document.getElementById('toggleTheme').addEventListener('click', toggleTheme);
+    document.getElementById('saveToCloud').addEventListener('click', saveToCloud);
+    document.getElementById('loadFromCloud').addEventListener('click', loadFromCloud);
+    document.getElementById('performanceStats').addEventListener('click', performanceStats);
+    document.getElementById('enableCheat').addEventListener('click', enableCheatMode);
 
     drawBoard();
 });

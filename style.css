@@ -197,3 +197,35 @@ li {
 #toggleTheme:hover {
     background-color: #138496;
 }
+
+#saveToCloud {
+    background-color: #6610f2;
+}
+
+#saveToCloud:hover {
+    background-color: #520c8b;
+}
+
+#loadFromCloud {
+    background-color: #e83e8c;
+}
+
+#loadFromCloud:hover {
+    background-color: #c32a6d;
+}
+
+#performanceStats {
+    background-color: #fd7e14;
+}
+
+#performanceStats:hover {
+    background-color: #e56b00;
+}
+
+#enableCheat {
+    background-color: #17a2b8;
+}
+
+#enableCheat:hover {
+    background-color: #117a8b;
+}
