@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedPiece = null;
     let possibleMoves = [];
     let gameOver = false;
+    let playerTurn = 'white'; // Player turn ('white' or 'black')
 
     const drawBoard = () => {
         board.innerHTML = '';
@@ -50,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const highlightMoves = (piece, position) => {
         const pos = parseInt(position);
-        const isWhite = piece === '♙';
+        const isWhite = piece === '♙' || piece === '♖' || piece === '♘' || piece === '♗' || piece === '♕' || piece === '♔';
         possibleMoves = [];
 
         const getPosition = (x, y) => x >= 1 && x <= 8 && y >= 1 && y <= 8 ? `${x + (y - 1) * 8}` : null;
@@ -103,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const gameState = {
             boardState,
             moveHistory,
-            gameOver
+            gameOver,
+            playerTurn
         };
         localStorage.setItem('chessGameState', JSON.stringify(gameState));
         alert('Game saved successfully!');
@@ -116,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             boardState = savedState.boardState;
             moveHistory = savedState.moveHistory;
             gameOver = savedState.gameOver;
+            playerTurn = savedState.playerTurn;
             for (let i = 0; i < squares; i++) {
                 pieces[i + 1] = boardState[i];
             }
@@ -133,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateMoveList = () => {
-                const moveList = document.getElementById('moveList');
+        const moveList = document.getElementById('moveList');
         moveList.innerHTML = '';
         moveHistory.forEach(move => {
             const listItem = document.createElement('li');
@@ -147,8 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
             status.innerText = 'Game Over!';
             status.style.color = 'red';
         } else {
-            status.innerText = 'Game in Progress';
-            status.style.color = 'green';
+            status.innerText = `Turn: ${playerTurn}`;
+            status.style.color = playerTurn === 'white' ? 'blue' : 'black';
         }
     };
 
@@ -157,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         moveHistory = [];
         updateMoveList();
         gameOver = false;
+        playerTurn = 'white';
         updateGameStatus();
     };
 
@@ -170,14 +174,40 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 toSquare.appendChild(piece);
                 piece.style.transform = 'translateY(0)';
+                if (toSquare.querySelector('.piece') && toSquare.querySelector('.piece').innerText !== piece.innerText) {
+                    toSquare.querySelector('.piece').remove();
+                }
             }, 200);
         }
     };
 
     const checkGameEnd = () => {
-        // Basic check for game end (could be expanded with more conditions)
         if (!document.querySelector('.square .piece[data-piece="♚"]')) {
             gameOver = true;
+            updateGameStatus();
+        }
+    };
+
+    const getRandomMove = () => {
+        const availableMoves = Array.from(document.querySelectorAll('.square')).filter(square => 
+            square.classList.contains('highlight') || square.classList.contains('capture')
+        );
+        return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    };
+
+    const makeAIMove = () => {
+        const move = getRandomMove();
+        if (move && selectedPiece) {
+            const from = selectedPiece.parentElement.dataset.index;
+            const to = move.dataset.index;
+            updateMoveHistory(selectedPiece.innerText, from, to);
+            movePiece(from, to);
+            selectedPiece.classList.remove('selected');
+            selectedPiece = null;
+            clearHighlights();
+            updateMoveList();
+            checkGameEnd();
+            playerTurn = 'white'; // Switch turn back to player
             updateGameStatus();
         }
     };
@@ -207,6 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedPiece = null;
                 updateMoveList();
                 checkGameEnd();
+                playerTurn = 'black'; // Switch turn to AI
+                updateGameStatus();
+                setTimeout(makeAIMove, 500); // Make AI move after a short delay
             }
         }
     });
@@ -222,7 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('saveGame').addEventListener('click', saveGame);
     document.getElementById('loadGame').addEventListener('click', loadGame);
+    document.getElementById('aiMove').addEventListener('click', () => {
+        if (!gameOver && playerTurn === 'white') {
+            makeAIMove();
+        }
+    });
 
     drawBoard();
 });
-
