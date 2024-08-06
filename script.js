@@ -11,12 +11,86 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 1; i <= squares; i++) {
         const square = document.createElement('div');
         square.className = 'square';
+        square.dataset.index = i;
+
         if (pieces[i]) {
             const piece = document.createElement('div');
             piece.className = 'piece';
             piece.innerText = pieces[i];
             square.appendChild(piece);
         }
+
         board.appendChild(square);
     }
+
+    let selectedPiece = null;
+    let possibleMoves = [];
+
+    const clearHighlights = () => {
+        possibleMoves.forEach(index => {
+            const square = document.querySelector(`.square[data-index='${index}']`);
+            if (square) {
+                square.classList.remove('highlight');
+            }
+        });
+        possibleMoves = [];
+    };
+
+    const highlightMoves = (piece, position) => {
+        if (piece === '♙') {
+            const move = parseInt(position) + 8;
+            if (move <= 64) possibleMoves.push(move);
+        } else if (piece === '♟') {
+            const move = parseInt(position) - 8;
+            if (move >= 1) possibleMoves.push(move);
+        }
+
+        possibleMoves.forEach(index => {
+            const square = document.querySelector(`.square[data-index='${index}']`);
+            if (square) {
+                square.classList.add('highlight');
+            }
+        });
+    };
+
+    board.addEventListener('click', (e) => {
+        const target = e.target;
+
+        if (target.classList.contains('piece')) {
+            if (selectedPiece) {
+                selectedPiece.classList.remove('selected');
+                clearHighlights();
+            }
+            selectedPiece = target;
+            selectedPiece.classList.add('selected');
+            highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
+        } else if (target.classList.contains('square') && selectedPiece) {
+            clearHighlights();
+            target.appendChild(selectedPiece);
+            selectedPiece.classList.remove('selected');
+            selectedPiece = null;
+        }
+    });
+
+    // Additional functionality for enhanced interactivity
+    const resetButton = document.createElement('button');
+    resetButton.innerText = 'Reset Board';
+    resetButton.addEventListener('click', () => {
+        board.innerHTML = '';
+        for (let i = 1; i <= squares; i++) {
+            const square = document.createElement('div');
+            square.className = 'square';
+            square.dataset.index = i;
+
+            if (pieces[i]) {
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.innerText = pieces[i];
+                square.appendChild(piece);
+            }
+
+            board.appendChild(square);
+        }
+    });
+    document.body.appendChild(resetButton);
 });

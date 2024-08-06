@@ -17,6 +17,9 @@ body {
 .square {
     width: 60px;
     height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .square:nth-child(even) {
@@ -34,4 +37,13 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 36px;
+    cursor: pointer;
+}
+
+.selected {
+    outline: 2px solid red;
+}
+
+.highlight {
+    background-color: yellow;
 }
