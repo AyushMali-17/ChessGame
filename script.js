@@ -31,24 +31,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const square = document.querySelector(`.square[data-index='${index}']`);
             if (square) {
                 square.classList.remove('highlight');
+                square.classList.remove('capture');
             }
         });
         possibleMoves = [];
     };
 
     const highlightMoves = (piece, position) => {
-        if (piece === '♙') {
-            const move = parseInt(position) + 8;
-            if (move <= 64) possibleMoves.push(move);
-        } else if (piece === '♟') {
-            const move = parseInt(position) - 8;
-            if (move >= 1) possibleMoves.push(move);
+        const pos = parseInt(position);
+        const isWhite = piece === '♙';
+
+        if (piece === '♙' || piece === '♟') {
+            const move = isWhite ? pos + 8 : pos - 8;
+            const captureLeft = isWhite ? pos + 7 : pos - 9;
+            const captureRight = isWhite ? pos + 9 : pos - 7;
+
+            if (move >= 1 && move <= 64 && !document.querySelector(`.square[data-index='${move}'] .piece`)) {
+                possibleMoves.push(move);
+            }
+            if (captureLeft >= 1 && captureLeft <= 64) {
+                const target = document.querySelector(`.square[data-index='${captureLeft}'] .piece`);
+                if (target && (isWhite ? target.innerText.match(/[♜♞♝♛♚♟]/) : target.innerText.match(/[♖♘♗♕♔♙]/))) {
+                    possibleMoves.push(captureLeft);
+                }
+            }
+            if (captureRight >= 1 && captureRight <= 64) {
+                const target = document.querySelector(`.square[data-index='${captureRight}'] .piece`);
+                if (target && (isWhite ? target.innerText.match(/[♜♞♝♛♚♟]/) : target.innerText.match(/[♖♘♗♕♔♙]/))) {
+                    possibleMoves.push(captureRight);
+                }
+            }
         }
 
         possibleMoves.forEach(index => {
             const square = document.querySelector(`.square[data-index='${index}']`);
             if (square) {
-                square.classList.add('highlight');
+                square.classList.add(square.querySelector('.piece') ? 'capture' : 'highlight');
             }
         });
     };
@@ -65,14 +83,18 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedPiece.classList.add('selected');
             highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
         } else if (target.classList.contains('square') && selectedPiece) {
-            clearHighlights();
-            target.appendChild(selectedPiece);
-            selectedPiece.classList.remove('selected');
-            selectedPiece = null;
+            if (target.classList.contains('highlight') || target.classList.contains('capture')) {
+                clearHighlights();
+                if (target.classList.contains('capture')) {
+                    target.removeChild(target.querySelector('.piece'));
+                }
+                target.appendChild(selectedPiece);
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+            }
         }
     });
 
-    // Additional functionality for enhanced interactivity
     const resetButton = document.createElement('button');
     resetButton.innerText = 'Reset Board';
     resetButton.addEventListener('click', () => {
@@ -93,4 +115,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     document.body.appendChild(resetButton);
+
+    // Additional functionalities and improvements
+    const moveHistory = [];
+    const updateMoveHistory = (piece, from, to) => {
+        moveHistory.push(`${piece} moved from ${from} to ${to}`);
+        console.log(moveHistory);
+    };
+
+    board.addEventListener('click', (e) => {
+        const target = e.target;
+
+        if (target.classList.contains('piece')) {
+            if (selectedPiece) {
+                selectedPiece.classList.remove('selected');
+                clearHighlights();
+            }
+            selectedPiece = target;
+            selectedPiece.classList.add('selected');
+            highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
+        } else if (target.classList.contains('square') && selectedPiece) {
+            if (target.classList.contains('highlight') || target.classList.contains('capture')) {
+                const from = selectedPiece.parentElement.dataset.index;
+                const to = target.dataset.index;
+                updateMoveHistory(selectedPiece.innerText, from, to);
+                clearHighlights();
+                if (target.classList.contains('capture')) {
+                    target.removeChild(target.querySelector('.piece'));
+                }
+                target.appendChild(selectedPiece);
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+            }
+        }
+    });
+
+    const undoButton = document.createElement('button');
+    undoButton.innerText = 'Undo Move';
+    undoButton.addEventListener('click', () => {
+        if (moveHistory.length > 0) {
+            const lastMove = moveHistory.pop();
+            console.log(`Undoing move: ${lastMove}`);
+            // Logic to undo the last move
+        }
+    });
+    document.body.appendChild(undoButton);
+
+    const moveList = document.createElement('ul');
+    document.body.appendChild(moveList);
+    const updateMoveList = () => {
+        moveList.innerHTML = '';
+        moveHistory.forEach(move => {
+            const listItem = document.createElement('li');
+            listItem.innerText = move;
+            moveList.appendChild(listItem);
+        });
+    };
+
+    // Additional event listener to update move list in real-time
+    board.addEventListener('click', (e) => {
+        const target = e.target;
+
+        if (target.classList.contains('piece')) {
+            if (selectedPiece) {
+                selectedPiece.classList.remove('selected');
+                clearHighlights();
+            }
+            selectedPiece = target;
+            selectedPiece.classList.add('selected');
+            highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
+        } else if (target.classList.contains('square') && selectedPiece) {
+            if (target.classList.contains('highlight') || target.classList.contains('capture')) {
+                const from = selectedPiece.parentElement.dataset.index;
+                const to = target.dataset.index;
+                updateMoveHistory(selectedPiece.innerText, from, to);
+                clearHighlights();
+                if (target.classList.contains('capture')) {
+                    target.removeChild(target.querySelector('.piece'));
+                }
+                target.appendChild(selectedPiece);
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+                updateMoveList();
+            }
+        }
+    });
 });

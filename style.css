@@ -5,6 +5,7 @@ body {
     height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
+    flex-direction: column;
 }
 
 #chessboard {
@@ -46,4 +47,15 @@ body {
 
 .highlight {
     background-color: yellow;
+}
+
+.capture {
+    background-color: red;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
 }
