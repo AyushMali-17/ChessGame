@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let selectedPiece = null;
     let possibleMoves = [];
+    let moveHistory = [];
+    const moveHistoryElement = document.createElement('div');
+    moveHistoryElement.id = 'moveHistory';
+    document.body.appendChild(moveHistoryElement);
 
     const clearHighlights = () => {
         possibleMoves.forEach(index => {
@@ -35,6 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         possibleMoves = [];
+    };
+
+    const updateMoveHistory = (piece, from, to) => {
+        moveHistory.push(`${piece} moved from ${from} to ${to}`);
+        moveHistoryElement.innerText = moveHistory.join('\n');
     };
 
     const highlightMoves = (piece, position) => {
@@ -84,6 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
             highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
         } else if (target.classList.contains('square') && selectedPiece) {
             if (target.classList.contains('highlight') || target.classList.contains('capture')) {
+                const from = selectedPiece.parentElement.dataset.index;
+                const to = target.dataset.index;
+                updateMoveHistory(selectedPiece.innerText, from, to);
                 clearHighlights();
                 if (target.classList.contains('capture')) {
                     target.removeChild(target.querySelector('.piece'));
@@ -113,66 +125,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
             board.appendChild(square);
         }
+        moveHistory = [];
+        moveHistoryElement.innerText = '';
     });
     document.body.appendChild(resetButton);
 
-    // Additional functionalities and improvements
-    const moveHistory = [];
-    const updateMoveHistory = (piece, from, to) => {
-        moveHistory.push(`${piece} moved from ${from} to ${to}`);
-        console.log(moveHistory);
+    const canCastle = (king, rook) => {
+        // Basic validation for castling: ensure the squares between king and rook are empty
+        const kingPosition = parseInt(king.parentElement.dataset.index);
+        const rookPosition = parseInt(rook.parentElement.dataset.index);
+
+        if (Math.abs(kingPosition - rookPosition) !== 3 && Math.abs(kingPosition - rookPosition) !== 4) {
+            return false;
+        }
+
+        const direction = kingPosition < rookPosition ? 1 : -1;
+        for (let i = kingPosition + direction; i !== rookPosition; i += direction) {
+            if (document.querySelector(`.square[data-index='${i}'] .piece`)) {
+                return false;
+            }
+        }
+
+        return true;
     };
 
-    board.addEventListener('click', (e) => {
-        const target = e.target;
+    const highlightCastling = (king, position) => {
+        const kingPos = parseInt(position);
+        const rookLeft = document.querySelector(`.square[data-index='${kingPos - 4}'] .piece`);
+        const rookRight = document.querySelector(`.square[data-index='${kingPos + 3}'] .piece`);
 
-        if (target.classList.contains('piece')) {
-            if (selectedPiece) {
-                selectedPiece.classList.remove('selected');
-                clearHighlights();
-            }
-            selectedPiece = target;
-            selectedPiece.classList.add('selected');
-            highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
-        } else if (target.classList.contains('square') && selectedPiece) {
-            if (target.classList.contains('highlight') || target.classList.contains('capture')) {
-                const from = selectedPiece.parentElement.dataset.index;
-                const to = target.dataset.index;
-                updateMoveHistory(selectedPiece.innerText, from, to);
-                clearHighlights();
-                if (target.classList.contains('capture')) {
-                    target.removeChild(target.querySelector('.piece'));
-                }
-                target.appendChild(selectedPiece);
-                selectedPiece.classList.remove('selected');
-                selectedPiece = null;
-            }
+        if (rookLeft && rookLeft.innerText === '♖' && canCastle(king, rookLeft)) {
+            possibleMoves.push(kingPos - 2);
         }
-    });
-
-    const undoButton = document.createElement('button');
-    undoButton.innerText = 'Undo Move';
-    undoButton.addEventListener('click', () => {
-        if (moveHistory.length > 0) {
-            const lastMove = moveHistory.pop();
-            console.log(`Undoing move: ${lastMove}`);
-            // Logic to undo the last move
+        if (rookRight && rookRight.innerText === '♖' && canCastle(king, rookRight)) {
+            possibleMoves.push(kingPos + 2);
         }
-    });
-    document.body.appendChild(undoButton);
 
-    const moveList = document.createElement('ul');
-    document.body.appendChild(moveList);
-    const updateMoveList = () => {
-        moveList.innerHTML = '';
-        moveHistory.forEach(move => {
-            const listItem = document.createElement('li');
-            listItem.innerText = move;
-            moveList.appendChild(listItem);
+        possibleMoves.forEach(index => {
+            const square = document.querySelector(`.square[data-index='${index}']`);
+            if (square) {
+                square.classList.add('highlight');
+            }
         });
     };
 
-    // Additional event listener to update move list in real-time
+    const handleEnPassant = (pawn, from, to) => {
+        const direction = pawn.innerText === '♙' ? -1 : 1;
+        const target = document.querySelector(`.square[data-index='${parseInt(to) + 8 * direction}'] .piece`);
+        if (target && target.innerText === (pawn.innerText === '♙' ? '♟' : '♙')) {
+            target.parentElement.removeChild(target);
+        }
+    };
+
     board.addEventListener('click', (e) => {
         const target = e.target;
 
@@ -183,7 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             selectedPiece = target;
             selectedPiece.classList.add('selected');
-            highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
+            if (selectedPiece.innerText === '♔') {
+                highlightCastling(selectedPiece, selectedPiece.parentElement.dataset.index);
+            } else {
+                highlightMoves(selectedPiece.innerText, selectedPiece.parentElement.dataset.index);
+            }
         } else if (target.classList.contains('square') && selectedPiece) {
             if (target.classList.contains('highlight') || target.classList.contains('capture')) {
                 const from = selectedPiece.parentElement.dataset.index;
@@ -193,10 +201,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (target.classList.contains('capture')) {
                     target.removeChild(target.querySelector('.piece'));
                 }
+                if (selectedPiece.innerText === '♙' && Math.abs(from - to) === 16) {
+                    handleEnPassant(selectedPiece, from, to);
+                }
                 target.appendChild(selectedPiece);
                 selectedPiece.classList.remove('selected');
                 selectedPiece = null;
-                updateMoveList();
             }
         }
     });

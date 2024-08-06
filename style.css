@@ -59,3 +59,8 @@ button {
     font-size: 16px;
     cursor: pointer;
 }
+
+#moveHistory {
+    margin-top: 20px;
+    font-size: 16px;
+}
