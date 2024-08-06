@@ -5,7 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const capturedPiecesArea = document.getElementById('capturedPiecesArea');
     const moveList = document.getElementById('moveList');
     
-    const pieces = {};
+    const pieces = {
+        1: '♜', 2: '♞', 3: '♝', 4: '♛', 5: '♚', 6: '♝', 7: '♞', 8: '♜',
+        9: '♟', 10: '♟', 11: '♟', 12: '♟', 13: '♟', 14: '♟', 15: '♟', 16: '♟',
+        49: '♙', 50: '♙', 51: '♙', 52: '♙', 53: '♙', 54: '♙', 55: '♙', 56: '♙',
+        57: '♖', 58: '♘', 59: '♗', 60: '♕', 61: '♔', 62: '♗', 63: '♘', 64: '♖'
+    };
     let boardState = Array(64).fill(null);
     let moveHistory = [];
     let gameOver = false;
@@ -23,10 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             square.classList.add('square');
             square.dataset.index = i;
             if (pieces[i]) {
-                const piece = document.createElement('div');
-                piece.classList.add('piece');
-                piece.innerText = pieces[i];
-                square.appendChild(piece);
+                square.innerText = pieces[i];
             }
             square.addEventListener('click', () => handleSquareClick(i));
             board.appendChild(square);
@@ -40,56 +42,54 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const highlightMoves = (piece, index) => {
+        clearHighlights();
         const pos = parseInt(index, 10);
         possibleMoves = [];
-        const getPosition = (x, y) => (x >= 0 && x < 8 && y >= 0 && y < 8) ? (y * 8) + x + 1 : null;
 
-        if (piece === '♙') {
-            const move = getPosition(pos % 8, Math.floor(pos / 8) + 1);
-            if (move && !document.querySelector(`.square[data-index='${move}'] .piece`)) {
+        // This is a simplified move generation. You'll need to implement proper chess rules here.
+        if (piece === '♙' || piece === '♟') {
+            const direction = piece === '♙' ? -1 : 1;
+            const move = pos + (direction * 8);
+            if (move >= 1 && move <= 64 && !pieces[move]) {
                 possibleMoves.push(move);
             }
-            const captureLeft = getPosition((pos % 8) - 1, Math.floor(pos / 8) + 1);
-            const captureRight = getPosition((pos % 8) + 1, Math.floor(pos / 8) + 1);
-
-            [captureLeft, captureRight].forEach(capture => {
-                if (capture) {
-                    const target = document.querySelector(`.square[data-index='${capture}'] .piece`);
-                    if (target && !target.innerText.match(/♙/)) {
-                        possibleMoves.push(capture);
-                    }
-                }
-            });
-        } else if (piece === '♟') {
-            const move = getPosition(pos % 8, Math.floor(pos / 8) - 1);
-            if (move && !document.querySelector(`.square[data-index='${move}'] .piece`)) {
-                possibleMoves.push(move);
-            }
-            const captureLeft = getPosition((pos % 8) - 1, Math.floor(pos / 8) - 1);
-            const captureRight = getPosition((pos % 8) + 1, Math.floor(pos / 8) - 1);
-
-            [captureLeft, captureRight].forEach(capture => {
-                if (capture) {
-                    const target = document.querySelector(`.square[data-index='${capture}'] .piece`);
-                    if (target && target.innerText.match(/♙/)) {
-                        possibleMoves.push(capture);
-                    }
+            // Add capture moves
+            [-1, 1].forEach(offset => {
+                const capture = move + offset;
+                if (capture >= 1 && capture <= 64 && pieces[capture] && 
+                    ((piece === '♙' && pieces[capture].match(/[♟♜♞♝♛♚]/)) ||
+                     (piece === '♟' && pieces[capture].match(/[♙♖♘♗♕♔]/)))) {
+                    possibleMoves.push(capture);
                 }
             });
         }
+        // Add move generation for other pieces here
 
         possibleMoves.forEach(move => {
-            document.querySelector(`.square[data-index='${move}']`).classList.add('highlight');
+            const square = document.querySelector(`.square[data-index='${move}']`);
+            if (pieces[move]) {
+                square.classList.add('capture');
+            } else {
+                square.classList.add('highlight');
+            }
         });
     };
 
     const handleSquareClick = (index) => {
         const piece = pieces[index];
         if (selectedPiece) {
-            movePiece(selectedPiece, index);
-            clearHighlights();
-            selectedPiece = null;
-        } else if (piece) {
+            if (possibleMoves.includes(index)) {
+                movePiece(selectedPiece, index);
+                clearHighlights();
+                selectedPiece = null;
+                playerTurn = playerTurn === 'white' ? 'black' : 'white';
+                updateGameStatus();
+            } else {
+                selectedPiece = null;
+                clearHighlights();
+            }
+        } else if (piece && ((playerTurn === 'white' && piece.match(/[♙♖♘♗♕♔]/)) ||
+                             (playerTurn === 'black' && piece.match(/[♟♜♞♝♛♚]/)))) {
             selectedPiece = index;
             highlightMoves(piece, index);
         }
@@ -97,28 +97,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const movePiece = (from, to) => {
         const piece = pieces[from];
+        if (pieces[to]) {
+            capturePiece(to);
+        }
         pieces[to] = piece;
-        pieces[from] = null;
-        boardState[to - 1] = piece;
-        boardState[from - 1] = null;
+        delete pieces[from];
         drawBoard();
         playSound('moveSound');
         updateMoveHistory(piece, from, to);
     };
 
+    const capturePiece = (index) => {
+        const capturedPiece = pieces[index];
+        const capturedBy = playerTurn === 'white' ? 'white' : 'black';
+        capturedPieces[capturedBy].push(capturedPiece);
+        updateCapturedPieces();
+        playSound('captureSound');
+    };
+
     const updateMoveHistory = (piece, from, to) => {
-        const move = `${piece} from ${from} to ${to}`;
+        const move = `${piece} ${indexToNotation(from)} → ${indexToNotation(to)}`;
         moveHistory.push(move);
         updateMoveList();
     };
 
+    const indexToNotation = (index) => {
+        const file = String.fromCharCode('a'.charCodeAt(0) + ((index - 1) % 8));
+        const rank = 8 - Math.floor((index - 1) / 8);
+        return `${file}${rank}`;
+    };
+
     const updateMoveList = () => {
         moveList.innerHTML = '';
-        moveHistory.forEach(move => {
+        moveHistory.forEach((move, index) => {
             const listItem = document.createElement('li');
-            listItem.innerText = move;
+            listItem.innerText = `${Math.floor(index / 2) + 1}. ${move}`;
             moveList.appendChild(listItem);
         });
+        moveList.scrollTop = moveList.scrollHeight;
     };
 
     const updateGameStatus = () => {
@@ -131,139 +147,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateCapturedPieces = () => {
         capturedPiecesArea.innerHTML = `
-            Captured Pieces:
-            <div>White: ${capturedPieces.white.join(', ')}</div>
-            <div>Black: ${capturedPieces.black.join(', ')}</div>
+            Captured:
+            <div>White: ${capturedPieces.white.join(' ')}</div>
+            <div>Black: ${capturedPieces.black.join(' ')}</div>
         `;
-    };
-
-    const toggleRetroMode = () => {
-        document.body.classList.toggle('retro-mode');
     };
 
     const toggleSound = () => {
         soundOn = !soundOn;
-        document.getElementById('soundToggle').classList.toggle('sound-on', soundOn);
-        document.getElementById('soundToggle').classList.toggle('sound-off', !soundOn);
+        document.getElementById('toggleSound').classList.toggle('sound-on', soundOn);
+        document.getElementById('toggleSound').classList.toggle('sound-off', !soundOn);
     };
 
-    const showLegalMoves = () => {
-        alert('Legal moves feature is under development.');
-    };
-
-    const showCapturedPieces = () => {
-        capturedPiecesArea.style.display = capturedPiecesArea.style.display === 'none' ? 'block' : 'none';
-    };
-
-    const toggleTheme = () => {
-        document.body.classList.toggle('dark-mode');
-        document.body.classList.toggle('retro-mode');
-    };
-
-    const enableCheatMode = () => {
-        alert('Cheat mode enabled!');
-    };
-
-    const performanceStats = () => {
-        alert('Performance Stats:\nTime Played: 30 minutes\nMoves Made: 50');
-    };
-
-    const drawBoard = () => {
-        board.innerHTML = '';
-        for (let i = 1; i <= 64; i++) {
-            const square = document.createElement('div');
-            square.classList.add('square');
-            square.dataset.index = i;
-            if (pieces[i]) {
-                const piece = document.createElement('div');
-                piece.classList.add('piece');
-                piece.innerText = pieces[i];
-                square.appendChild(piece);
-            }
-            square.addEventListener('click', () => handleSquareClick(i));
-            board.appendChild(square);
+    const playSound = (soundId) => {
+        if (soundOn) {
+            document.getElementById(soundId).play();
         }
     };
 
-    const handleSquareClick = (index) => {
-        const piece = pieces[index];
+    const showHints = () => {
         if (selectedPiece) {
-            movePiece(selectedPiece, index);
-            clearHighlights();
-            selectedPiece = null;
-        } else if (piece) {
-            selectedPiece = index;
-            highlightMoves(piece, index);
+            highlightMoves(pieces[selectedPiece], selectedPiece);
+        } else {
+            alert('Select a piece to see hints');
         }
-    };
-
-    const movePiece = (from, to) => {
-        const piece = pieces[from];
-        pieces[to] = piece;
-        pieces[from] = null;
-        boardState[to - 1] = piece;
-        boardState[from - 1] = null;
-        drawBoard();
-        playSound('moveSound');
-        updateMoveHistory(piece, from, to);
-    };
-
-    const updateMoveHistory = (piece, from, to) => {
-        const move = `${piece} from ${from} to ${to}`;
-        moveHistory.push(move);
-        updateMoveList();
     };
 
     document.getElementById('resetBoard').addEventListener('click', () => {
-        pieces = {};  // Reset pieces
+        pieces = {
+            1: '♜', 2: '♞', 3: '♝', 4: '♛', 5: '♚', 6: '♝', 7: '♞', 8: '♜',
+            9: '♟', 10: '♟', 11: '♟', 12: '♟', 13: '♟', 14: '♟', 15: '♟', 16: '♟',
+            49: '♙', 50: '♙', 51: '♙', 52: '♙', 53: '♙', 54: '♙', 55: '♙', 56: '♙',
+            57: '♖', 58: '♘', 59: '♗', 60: '♕', 61: '♔', 62: '♗', 63: '♘', 64: '♖'
+        };
         boardState = Array(64).fill(null);
+        moveHistory = [];
+        gameOver = false;
+        playerTurn = 'white';
+        scores = { white: 0, black: 0 };
+        capturedPieces = { white: [], black: [] };
         drawBoard();
         updateMoveList();
         updateGameStatus();
+        updateScore();
+        updateCapturedPieces();
     });
 
     document.getElementById('undoMove').addEventListener('click', () => {
-        alert('Undo feature not implemented yet.');
+        if (moveHistory.length > 0) {
+            moveHistory.pop();
+            // Implement logic to revert the board state
+            drawBoard();
+            updateMoveList();
+            playerTurn = playerTurn === 'white' ? 'black' : 'white';
+            updateGameStatus();
+        }
     });
 
-    document.getElementById('saveGame').addEventListener('click', saveGame);
-    document.getElementById('loadGame').addEventListener('click', loadGame);
     document.getElementById('aiMove').addEventListener('click', () => {
+        // Implement AI move logic here
         alert('AI Move feature not implemented yet.');
     });
 
+    document.getElementById('toggleSound').addEventListener('click', toggleSound);
     document.getElementById('showHints').addEventListener('click', showHints);
-    document.getElementById('toggleBoard').addEventListener('click', toggleBoardColor);
-    document.getElementById('retroMode').addEventListener('click', toggleRetroMode);
-    document.getElementById('soundToggle').addEventListener('click', toggleSound);
-    document.getElementById('showLegalMoves').addEventListener('click', showLegalMoves);
-    document.getElementById('showCaptured').addEventListener('click', showCapturedPieces);
-    document.getElementById('toggleTheme').addEventListener('click', toggleTheme);
-    document.getElementById('saveToCloud').addEventListener('click', saveToCloud);
-    document.getElementById('loadFromCloud').addEventListener('click', loadFromCloud);
-    document.getElementById('performanceStats').addEventListener('click', performanceStats);
-    document.getElementById('enableCheat').addEventListener('click', enableCheatMode);
-    document.getElementById('moveToStart').addEventListener('click', () => {
-        alert('Move to start feature not implemented yet.');
-    });
-    document.getElementById('moveToEnd').addEventListener('click', () => {
-        alert('Move to end feature not implemented yet.');
-    });
-    document.getElementById('showLeaderboard').addEventListener('click', () => {
-        alert('Leaderboard feature under development.');
-    });
-    document.getElementById('recordGame').addEventListener('click', () => {
-        alert('Game recording feature under development.');
-    });
-    document.getElementById('loadFromSaveState').addEventListener('click', () => {
-        alert('Load from save state feature under development.');
-    });
-    document.getElementById('highlightPossibleMoves').addEventListener('click', () => {
-        alert('Highlight possible moves feature under development.');
-    });
-    document.getElementById('themeSwitcher').addEventListener('click', () => {
-        alert('Theme switcher feature under development.');
-    });
 
     drawBoard();
+    updateGameStatus();
+    updateScore();
+    updateCapturedPieces();
 });

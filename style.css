@@ -1,8 +1,40 @@
 /* Base styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Press Start 2P', cursive;
     margin: 0;
     padding: 0;
+    background-color: #000;
+    color: #0f0;
+}
+
+.retro-mode {
+    background-color: #000;
+    color: #0f0;
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: #222;
+    border-bottom: 3px solid #0f0;
+}
+
+h1 {
+    margin: 0;
+    font-size: 2em;
+    text-shadow: 2px 2px #0f0;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+#game-container {
+    display: flex;
+    gap: 20px;
 }
 
 #board {
@@ -10,132 +42,100 @@ body {
     grid-template-columns: repeat(8, 1fr);
     width: 400px;
     height: 400px;
-    margin: 20px auto;
-    border: 2px solid #333;
+    border: 3px solid #0f0;
+    box-shadow: 0 0 10px #0f0;
 }
 
 .square {
     width: 50px;
     height: 50px;
     box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    border: 1px solid #0f0;
 }
 
 .square:nth-child(odd) {
-    background-color: #eee;
+    background-color: #000;
 }
 
 .square:nth-child(even) {
-    background-color: #ddd;
+    background-color: #111;
 }
 
 .piece {
-    text-align: center;
-    font-size: 24px;
+    text-shadow: 1px 1px #000;
+}
+
+#info-panel {
+    width: 300px;
+    background-color: #111;
+    border: 3px solid #0f0;
+    padding: 10px;
+    box-shadow: 0 0 10px #0f0;
 }
 
 #controls {
-    text-align: center;
-    margin: 20px;
+    margin-top: 20px;
 }
 
 button {
-    margin: 5px;
+    font-family: 'Press Start 2P', cursive;
+    background-color: #000;
+    color: #0f0;
+    border: 2px solid #0f0;
     padding: 10px 20px;
-    font-size: 16px;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background-color: #0f0;
+    color: #000;
 }
 
 #status, #scoreArea, #capturedPiecesArea {
-    text-align: center;
-    margin: 10px;
+    margin: 10px 0;
 }
 
 #moveList {
     list-style-type: none;
     padding: 0;
-    margin: 10px 0;
+    height: 200px;
+    overflow-y: auto;
+    border-top: 1px solid #0f0;
 }
 
 #moveList li {
-    margin: 5px 0;
-    font-size: 1em;
+    padding: 5px 0;
+    border-bottom: 1px solid #0f0;
 }
 
-/* Additional styles */
-.sound-on {
-    background-color: green;
-    color: white;
-}
-
-.sound-off {
-    background-color: red;
-    color: white;
-}
-
-.retro-mode .square {
-    background-color: #6e6e6e;
-    border: 1px solid #333;
-}
-
-.dark-mode {
-    background-color: #333;
-    color: white;
-}
-
-.retro-mode {
-    background-color: #f0e6d6;
-}
-
-#controls button {
-    background-color: #ffeb3b;
-    color: #000;
-    border: 1px solid #ccc;
-}
-
-#controls button:hover {
-    background-color: #ffc107;
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #222;
+    border-top: 3px solid #0f0;
+    font-size: 0.8em;
 }
 
 .highlight {
-    background-color: #9fc5e8 !important;
+    background-color: #0f05 !important;
 }
 
 .capture {
-    background-color: #f4cccc !important;
+    background-color: #f005 !important;
 }
 
-.dark-mode #board {
-    border-color: #ccc;
+.sound-on {
+    background-color: #0f0;
+    color: #000;
 }
 
-.dark-mode .square:nth-child(odd) {
-    background-color: #333;
-}
-
-.dark-mode .square:nth-child(even) {
-    background-color: #222;
-}
-
-.dark-mode .piece {
+.sound-off {
+    background-color: #f00;
     color: #fff;
-}
-
-.retro-mode .piece {
-    font-family: 'Courier New', Courier, monospace;
-}
-
-#showLeaderboard, #recordGame, #loadFromSaveState, #highlightPossibleMoves, #themeSwitcher {
-    background-color: #e0f7fa;
-    border: 1px solid #00acc1;
-}
-
-#showLeaderboard:hover, #recordGame:hover, #loadFromSaveState:hover, #highlightPossibleMoves:hover, #themeSwitcher:hover {
-    background-color: #b2ebf2;
-}
-
-#scoreArea {
-    font-size: 1.2em;
-}
-
-#capturedPiecesArea {
-    font-size: 1em;
 }

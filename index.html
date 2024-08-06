@@ -3,47 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Chess Game</title>
+    <title>Retro Chess</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div id="board"></div>
-    <div id="controls">
-        <button id="resetBoard">Reset Board</button>
-        <button id="undoMove">Undo Move</button>
-        <button id="saveGame">Save Game</button>
-        <button id="loadGame">Load Game</button>
-        <button id="aiMove">AI Move</button>
-        <button id="showHints">Show Hints</button>
-        <button id="toggleBoard">Toggle Board Color</button>
-        <button id="retroMode">Toggle Retro Mode</button>
-        <button id="soundToggle" class="sound-on">Toggle Sound</button>
-        <button id="showLegalMoves">Show Legal Moves</button>
-        <button id="showCaptured">Show Captured Pieces</button>
-        <button id="toggleTheme">Toggle Dark/Retro Theme</button>
-        <button id="saveToCloud">Save to Cloud</button>
-        <button id="loadFromCloud">Load from Cloud</button>
-        <button id="performanceStats">Performance Stats</button>
-        <button id="enableCheat">Enable Cheat Mode</button>
-        <button id="moveToStart">Move to Start</button>
-        <button id="moveToEnd">Move to End</button>
-        <button id="showLeaderboard">Show Leaderboard</button>
-        <button id="recordGame">Record Game</button>
-        <button id="loadFromSaveState">Load from Save State</button>
-        <button id="highlightPossibleMoves">Highlight Possible Moves</button>
-        <button id="themeSwitcher">Switch Theme</button>
-    </div>
-    <div id="status"></div>
-    <div id="scoreArea"></div>
-    <div id="capturedPiecesArea"></div>
-    <ul id="moveList"></ul>
+<body class="retro-mode">
+    <header>
+        <h1>Retro Chess</h1>
+    </header>
+    <main>
+        <div id="game-container">
+            <div id="board"></div>
+            <div id="info-panel">
+                <div id="status"></div>
+                <div id="scoreArea"></div>
+                <div id="capturedPiecesArea"></div>
+                <ul id="moveList"></ul>
+            </div>
+        </div>
+        <div id="controls">
+            <button id="resetBoard">New Game</button>
+            <button id="undoMove">Undo Move</button>
+            <button id="aiMove">AI Move</button>
+            <button id="toggleSound" class="sound-on">Toggle Sound</button>
+            <button id="showHints">Show Hints</button>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Retro Chess. All rights reserved.</p>
+    </footer>
     
-    <!-- Audio Elements -->
     <audio id="moveSound" src="move-sound.mp3"></audio>
     <audio id="captureSound" src="capture-sound.mp3"></audio>
-    <audio id="errorSound" src="error-sound.mp3"></audio>
-    <audio id="themeChangeSound" src="theme-change.mp3"></audio>
-    <audio id="recordSound" src="record-sound.mp3"></audio>
 
     <script src="script.js"></script>
 </body>
