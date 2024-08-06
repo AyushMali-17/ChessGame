@@ -1,231 +1,85 @@
+/* Base styles */
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
+    font-family: Arial, sans-serif;
     margin: 0;
-    background-color: #f5f5f5;
-    font-family: 'Courier New', Courier, monospace;
-    transition: background-color 0.3s;
+    padding: 0;
 }
 
-#chessboard {
+#board {
     display: grid;
-    grid-template-columns: repeat(8, 60px);
-    grid-template-rows: repeat(8, 60px);
-    border: 4px solid #000;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    position: relative;
-    margin-bottom: 20px;
-    background-color: #eee;
-    transition: background-color 0.3s;
+    grid-template-columns: repeat(8, 1fr);
+    width: 400px;
+    height: 400px;
+    margin: 20px auto;
+    border: 2px solid #333;
 }
 
 .square {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    font-size: 32px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-}
-
-.square:nth-child(even) {
-    background-color: #d1a67c;
+    width: 50px;
+    height: 50px;
+    box-sizing: border-box;
 }
 
 .square:nth-child(odd) {
-    background-color: #f7e4d5;
+    background-color: #eee;
 }
 
-.square.highlight {
-    background-color: #8fbc8f;
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-}
-
-.square.capture {
-    background-color: #f4cccc;
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+.square:nth-child(even) {
+    background-color: #ddd;
 }
 
 .piece {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 36px;
-    transition: transform 0.2s ease;
+    text-align: center;
+    font-size: 24px;
 }
 
-.selected {
-    outline: 2px solid #ff0000;
-    background-color: rgba(255, 0, 0, 0.2);
+#controls {
+    text-align: center;
+    margin: 20px;
 }
 
 button {
     margin: 5px;
     padding: 10px 20px;
     font-size: 16px;
-    cursor: pointer;
-    border: 2px solid #333;
-    border-radius: 5px;
-    background-color: #4a4a4a;
-    color: #fff;
-    transition: background-color 0.3s, transform 0.2s;
 }
 
-button:hover {
-    background-color: #333;
+#status, #scoreArea, #capturedPiecesArea {
+    text-align: center;
+    margin: 10px;
 }
 
-button:active {
-    transform: scale(0.98);
-}
-
-#status {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #000;
-}
-
-ul {
+#moveList {
     list-style-type: none;
     padding: 0;
-    max-height: 200px;
-    overflow-y: auto;
+    margin: 10px 0;
 }
 
-li {
+#moveList li {
     margin: 5px 0;
-    font-size: 14px;
-    border-bottom: 1px solid #333;
-    padding-bottom: 5px;
+    font-size: 1em;
 }
 
-#hint {
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 10px;
-    color: #000;
+/* Additional styles */
+.sound-on {
+    background-color: green;
+    color: white;
 }
 
-#score {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 20px;
-    color: #000;
+.sound-off {
+    background-color: red;
+    color: white;
 }
 
-#capturedPieces {
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 20px;
-    color: #000;
-}
-
-.retro-mode #chessboard {
-    background-color: #666;
-}
-
-.retro-mode .square:nth-child(even) {
-    background-color: #777;
-}
-
-.retro-mode .square:nth-child(odd) {
-    background-color: #555;
-}
-
-.retro-mode button {
-    background-color: #000;
-    color: #fff;
-}
-
-.retro-mode button:hover {
-    background-color: #333;
+.retro-mode .square {
+    background-color: #6e6e6e;
 }
 
 .dark-mode {
     background-color: #333;
-    color: #fff;
+    color: white;
 }
 
-.dark-mode #chessboard {
-    background-color: #444;
-}
-
-.dark-mode .square:nth-child(even) {
-    background-color: #555;
-}
-
-.dark-mode .square:nth-child(odd) {
-    background-color: #333;
-}
-
-.sound-off {
-    background-color: #888;
-}
-
-.sound-on {
-    background-color: #444;
-}
-
-#showLegalMoves {
-    background-color: #007bff;
-}
-
-#showLegalMoves:hover {
-    background-color: #0056b3;
-}
-
-#showCaptured {
-    background-color: #28a745;
-}
-
-#showCaptured:hover {
-    background-color: #218838;
-}
-
-#toggleTheme {
-    background-color: #17a2b8;
-}
-
-#toggleTheme:hover {
-    background-color: #138496;
-}
-
-#saveToCloud {
-    background-color: #6610f2;
-}
-
-#saveToCloud:hover {
-    background-color: #520c8b;
-}
-
-#loadFromCloud {
-    background-color: #e83e8c;
-}
-
-#loadFromCloud:hover {
-    background-color: #c32a6d;
-}
-
-#performanceStats {
-    background-color: #fd7e14;
-}
-
-#performanceStats:hover {
-    background-color: #e56b00;
-}
-
-#enableCheat {
-    background-color: #17a2b8;
-}
-
-#enableCheat:hover {
-    background-color: #117a8b;
+.retro-mode {
+    background-color: #f0e6d6;
 }

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="chessboard"></div>
+    <div id="board"></div>
     <div id="controls">
         <button id="resetBoard">Reset Board</button>
         <button id="undoMove">Undo Move</button>
@@ -17,22 +17,24 @@
         <button id="showHints">Show Hints</button>
         <button id="toggleBoard">Toggle Board Color</button>
         <button id="retroMode">Toggle Retro Mode</button>
-        <button id="soundToggle">Toggle Sound</button>
+        <button id="soundToggle" class="sound-on">Toggle Sound</button>
         <button id="showLegalMoves">Show Legal Moves</button>
         <button id="showCaptured">Show Captured Pieces</button>
-        <button id="toggleTheme">Toggle Theme</button>
-        <button id="saveToCloud">Save to Cloud</button> <!-- New Button -->
-        <button id="loadFromCloud">Load from Cloud</button> <!-- New Button -->
-        <button id="performanceStats">Performance Stats</button> <!-- New Button -->
-        <button id="enableCheat">Enable Cheat Mode</button> <!-- New Button -->
+        <button id="toggleTheme">Toggle Dark/Retro Theme</button>
+        <button id="saveToCloud">Save to Cloud</button>
+        <button id="loadFromCloud">Load from Cloud</button>
+        <button id="performanceStats">Performance Stats</button>
+        <button id="enableCheat">Enable Cheat Mode</button>
     </div>
-    <div id="status">Game in Progress</div>
+    <div id="status"></div>
+    <div id="scoreArea"></div>
+    <div id="capturedPiecesArea"></div>
     <ul id="moveList"></ul>
-    <div id="hint"></div>
-    <div id="score">White: 0 | Black: 0</div>
-    <div id="capturedPieces">Captured Pieces: White - [], Black - []</div>
-    <audio id="moveSound" src="move.mp3" preload="auto"></audio>
-    <audio id="captureSound" src="capture.mp3" preload="auto"></audio>
+    
+    <!-- Audio Elements -->
+    <audio id="moveSound" src="move-sound.mp3"></audio>
+    <audio id="captureSound" src="capture-sound.mp3"></audio>
+
     <script src="script.js"></script>
 </body>
 </html>
